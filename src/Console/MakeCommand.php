@@ -3,6 +3,7 @@
 namespace Laravel\Dusk\Console;
 
 use Illuminate\Console\GeneratorCommand;
+use Illuminate\Support\Str;
 
 class MakeCommand extends GeneratorCommand
 {
@@ -45,7 +46,10 @@ class MakeCommand extends GeneratorCommand
      */
     protected function getPath($name)
     {
-        $name = str_replace_first($this->rootNamespace(), '', $name);
+        $position = strpos($name, $this->rootNamespace());
+        if ($position !== false) {
+            $name = substr_replace($name, '', $position, strlen($this->rootNamespace()));
+        }
 
         return $this->laravel->basePath().'/tests'.str_replace('\\', '/', $name).'.php';
     }

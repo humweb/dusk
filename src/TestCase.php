@@ -4,12 +4,12 @@ namespace Laravel\Dusk;
 
 use Closure;
 use Exception;
-use Throwable;
-use ReflectionFunction;
-use Illuminate\Support\Collection;
-use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
+use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Illuminate\Foundation\Testing\TestCase as FoundationTestCase;
+use Illuminate\Support\Collection;
+use ReflectionFunction;
+use Throwable;
 
 abstract class TestCase extends FoundationTestCase
 {
@@ -29,6 +29,7 @@ abstract class TestCase extends FoundationTestCase
      */
     protected static $afterClassCallbacks = [];
 
+
     /**
      * Register the base URL with Dusk.
      *
@@ -43,6 +44,7 @@ abstract class TestCase extends FoundationTestCase
             return $this->user();
         };
     }
+
 
     /**
      * Tear down the Dusk test case class.
@@ -59,10 +61,12 @@ abstract class TestCase extends FoundationTestCase
         }
     }
 
+
     /**
      * Register an "after class" tear down callback.
      *
-     * @param  \Closure  $callback
+     * @param  \Closure $callback
+     *
      * @return void
      */
     public static function afterClass(Closure $callback)
@@ -70,10 +74,12 @@ abstract class TestCase extends FoundationTestCase
         static::$afterClassCallbacks[] = $callback;
     }
 
+
     /**
      * Create a new browser instance.
      *
-     * @param  \Closure  $callback
+     * @param  \Closure $callback
+     *
      * @return \Laravel\Dusk\Browser|void
      */
     public function browse(Closure $callback)
@@ -95,10 +101,12 @@ abstract class TestCase extends FoundationTestCase
         }
     }
 
+
     /**
      * Create the browser instances needed for the given callback.
      *
-     * @param  \Closure  $callback
+     * @param  \Closure $callback
+     *
      * @return array
      */
     protected function createBrowsersFor(Closure $callback)
@@ -116,10 +124,12 @@ abstract class TestCase extends FoundationTestCase
         return static::$browsers;
     }
 
+
     /**
      * Get the nmber of browsers needed for a given callback.
      *
-     * @param  \Closure  $callback
+     * @param  \Closure $callback
+     *
      * @return int
      */
     protected function browsersNeededFor(Closure $callback)
@@ -127,10 +137,12 @@ abstract class TestCase extends FoundationTestCase
         return (new ReflectionFunction($callback))->getNumberOfParameters();
     }
 
+
     /**
      * Capture failure screenshots for each browser.
      *
-     * @param  \Illuminate\Support\Collection  $browsers
+     * @param  \Illuminate\Support\Collection $browsers
+     *
      * @return void
      */
     protected function captureFailuresFor($browsers)
@@ -140,18 +152,23 @@ abstract class TestCase extends FoundationTestCase
         });
     }
 
+
     /**
      * Close all of the browsers except the primary (first) one.
      *
-     * @param  \Illuminate\Support\Collection  $browsers
+     * @param  \Illuminate\Support\Collection $browsers
+     *
      * @return \Illuminate\Support\Collection
      */
     protected function closeAllButPrimary($browsers)
     {
-        $browsers->slice(1)->each->quit();
+        $browsers->slice(1)->each(function ($i) {
+            $i->quite();
+        });
 
         return $browsers->take(1);
     }
+
 
     /**
      * Close all of the active browsers.
@@ -160,10 +177,13 @@ abstract class TestCase extends FoundationTestCase
      */
     public static function closeAll()
     {
-        Collection::make(static::$browsers)->each->quit();
+        Collection::make(static::$browsers)->each(function ($i) {
+            $i->quite();
+        });
 
         static::$browsers = collect();
     }
+
 
     /**
      * Create the remote web driver instance.
@@ -172,10 +192,12 @@ abstract class TestCase extends FoundationTestCase
      */
     protected function createWebDriver()
     {
-        return retry(5, function () {
-            return $this->driver();
-        }, 50);
+        return $this->driver();
+//        return retry(5, function () {
+//            return $this->driver();
+//        }, 50);
     }
+
 
     /**
      * Create the RemoteWebDriver instance.
@@ -184,10 +206,9 @@ abstract class TestCase extends FoundationTestCase
      */
     protected function driver()
     {
-        return RemoteWebDriver::create(
-            'http://localhost:9515', DesiredCapabilities::chrome()
-        );
+        return RemoteWebDriver::create('http://localhost:9515', DesiredCapabilities::chrome());
     }
+
 
     /**
      * Determine the application's base URL.
@@ -198,6 +219,7 @@ abstract class TestCase extends FoundationTestCase
     {
         return config('app.url');
     }
+
 
     /**
      * Get a callback that returns the default user to authenticate.

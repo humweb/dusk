@@ -3,6 +3,7 @@
 namespace Laravel\Dusk\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
+use LGL\Core\Auth\Laravel\Facades\Sentinel;
 
 class LoginController
 {
@@ -18,10 +19,10 @@ class LoginController
 
         if (str_contains($userId, '@')) {
             $user = (new $model)->where('email', $userId)->first();
-        } else {
+        } elseif (is_numeric($userId)) {
             $user = (new $model)->find($userId);
         }
 
-        Auth::login($user);
+        Sentinel::login($user);
     }
 }
