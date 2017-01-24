@@ -11,14 +11,14 @@ trait InteractsWithCookies
      *
      * @param  string  $name
      * @param  string|null  $value
-     * @param  mixed  $expiration
+     * @param  int|DateTimeInterface|null $expiry
      * @param  array  $options
      * @return string
      */
-    public function cookie($name, $value = null, $expiration = null, array $options = [])
+    public function cookie($name, $value = null, $expiry = null, array $options = [])
     {
         if ($value) {
-            return $this->addCookie($name, $value, $expiration, $options);
+            return $this->addCookie($name, $value, $expiry, $options);
         }
 
         if ($cookie = $this->driver->manage()->getCookieNamed($name)) {
@@ -29,15 +29,16 @@ trait InteractsWithCookies
     /**
      * Get or set a plain cookie's value.
      *
-     * @param  string  $name
-     * @param  string|null  $value
-     * @param  array  $options
+     * @param  string $name
+     * @param  string|null $value
+     * @param int|DateTimeInterface|null $expiry
+     * @param  array $options
      * @return string
      */
-    public function plainCookie($name, $value = null, $expiration = null, array $options = [])
+    public function plainCookie($name, $value = null, $expiry = null, array $options = [])
     {
         if ($value) {
-            return $this->addCookie($name, $value, $expiration, $options, false);
+            return $this->addCookie($name, $value, $expiry, $options, false);
         }
 
         if ($cookie = $this->driver->manage()->getCookieNamed($name)) {
@@ -50,23 +51,23 @@ trait InteractsWithCookies
      *
      * @param  string  $name
      * @param  string  $value
-     * @param  mixed  $expiration
+     * @param  int|DateTimeInterface|null  $expiry
      * @param  array  $options
      * @param  bool  $encrypt
      * @return $this
      */
-    public function addCookie($name, $value, $expiration, array $options = [], $encrypt = true)
+    public function addCookie($name, $value, $expiry = null, array $options = [], $encrypt = true)
     {
         if ($encrypt) {
             $value = encrypt($value);
         }
 
-        if ($expiration instanceof DateTimeInterface) {
-            $expiration = $expiration->getTimestamp();
+        if ($expiry instanceof DateTimeInterface) {
+            $expiry = $expiry->getTimestamp();
         }
 
         $this->driver->manage()->addCookie(
-            array_merge($options, compact('name', 'value'))
+            array_merge($options, compact('expiry', 'name', 'value'))
         );
 
         return $this;

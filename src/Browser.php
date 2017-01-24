@@ -28,6 +28,13 @@ class Browser
     public static $baseUrl;
 
     /**
+     * The directory that will contain any screenshots.
+     *
+     * @var string
+     */
+    public static $storeScreenshotsAt;
+
+    /**
      * Get the callback which resolves the default user to authenticate.
      *
      * @var \Closure
@@ -175,7 +182,9 @@ class Browser
      */
     public function screenshot($name)
     {
-        $this->driver->takeScreenshot(base_path('tests/Browser/screenshots/'.$name.'.png'));
+        $this->driver->takeScreenshot(
+            sprintf('%s/%s.png', rtrim(static::$storeScreenshotsAt, '/'), $name)
+        );
 
         return $this;
     }
@@ -200,6 +209,18 @@ class Browser
         call_user_func($callback, $browser);
 
         return $this;
+    }
+
+    /**
+     * Ensure that jQuery is available on the page.
+     *
+     * @return void
+     */
+    protected function ensurejQueryIsAvailable()
+    {
+        if ($this->driver->executeScript("return window.jQuery == null")) {
+            $this->driver->executeScript(file_get_contents(__DIR__.'/../bin/jquery.js'));
+        }
     }
 
     /**
